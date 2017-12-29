@@ -9,6 +9,7 @@ import urllib
 from keys import bithumb_api_key, bithumb_api_secret
 import requests
 import json
+from const import *
 
 
 class AccountBalance(object):
@@ -116,16 +117,39 @@ class BithumbClient:
         json_response = self._post(endpoint, params)
         return AccountBalance(json_response["data"])
 
-    def get_break_even(self, coin):
+    def get_break_even(self, currency):
         endpoint = "/info/user_transactions"
         params = {
             "offset": 0,  # Value : 0 ~ (default : 0)
-            "count": 20,  # Value : 1 ~ 50 (default : 20)
+            "count": 50,  # Value : 1 ~ 50 (default : 20)
             "searchGB": "0",  # 0 : 전체, 1 : 구매완료, 2 : 판매완료, 3 : 출금중, 4 : 입금, 5 : 출금, 9 : KRW 입금중
-            "currency": coin
+            "currency": currency
         }
         json_response = self._post(endpoint, params)
-        return json_response
+        data = json_response['data']
+
+        krw_sum = 0
+        quantity_sum = 0.0
+        for row in data:
+            print row
+            row_type = row["search"]
+            if row_type == "1" or row_type == "2":  # 1: buy, 2: sell
+                currency_remain_float = float(row[currency + "_remain"])
+                price_int = int(row["price"])
+                units_float = float(row["units"].replace(" ", ""))
+
+                if currency_remain_float < trading_unit[currency]:
+                    print currency + "_remain: " + row[currency + "_remain"] + " break!!"
+                    break
+
+                krw_sum -= price_int
+                quantity_sum += units_float
+
+                if currency_remain_float - units_float < trading_unit[currency]:
+                    print "previous ", currency_remain_float - units_float, " break!!"
+                    break
+
+        return int(round(krw_sum / quantity_sum)), quantity_sum  # (break even, quantity)
 
 
 

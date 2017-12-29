@@ -9,11 +9,20 @@ import json
 from bithumb.bithumb_client import BithumbClient
 
 api = BithumbClient()
-ret1 = api.get_break_even("BTC")
-print json.dumps(ret1)
+ret1 = api.get_break_even("btc")
+print ret1
 
-balance = api.get_account_balance()
-print json.dumps(balance.get_dict())
+ret2 = api.get_break_even("dash")
+print ret2
 
-ret = api.ticker()
-print json.dumps(ret)
+ret3 = api.get_break_even("zec")
+print ret3
+
+ret4 = api.get_break_even("qtum")
+print ret4
+
+# balance = api.get_account_balance()
+# print json.dumps(balance.get_dict())
+#
+# ret = api.ticker()
+# print json.dumps(ret)
