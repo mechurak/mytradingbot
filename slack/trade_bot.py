@@ -1,4 +1,6 @@
 # coding=utf-8
+# reference : https://github.com/lins05/slackbot
+
 from slackbot.bot import respond_to
 from slackbot.bot import listen_to
 from slackbot.dispatcher import Message
@@ -33,3 +35,11 @@ def hello(msg):
     msg.send("qtum " + str(balance["total_qtum"]))
     msg.send("btg " + str(balance["total_btg"]))
 
+
+@listen_to('avg (.*)', re.IGNORECASE)
+def avg(msg, currency):
+    api = BithumbClient()
+    (break_even, quantity) = api.get_break_even(currency)
+    msg.send("[" + currency + "]")
+    msg.send("avg: " + str(break_even))
+    msg.send("quantity: " + str(quantity))
