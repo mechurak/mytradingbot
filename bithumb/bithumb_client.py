@@ -131,7 +131,6 @@ class BithumbClient:
         krw_sum = 0
         quantity_sum = 0.0
         for row in data:
-            print row
             row_type = row["search"]
             if row_type == "1" or row_type == "2":  # 1: buy, 2: sell
                 currency_remain_float = float(row[currency + "_remain"])
@@ -149,7 +148,8 @@ class BithumbClient:
                     print "previous ", currency_remain_float - units_float, " break!!"
                     break
 
-        return int(round(krw_sum / quantity_sum)), quantity_sum  # (break even, quantity)
+        break_even = int(round(krw_sum / quantity_sum)) if quantity_sum != 0.0 else 0
+        return break_even, quantity_sum  # (break even, quantity)
 
 
 
