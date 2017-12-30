@@ -9,7 +9,7 @@ import urllib
 from keys import bithumb_api_key, bithumb_api_secret
 import requests
 import json
-from const import *
+from const import trading_unit
 
 
 class AccountBalance(object):
@@ -41,11 +41,19 @@ class BithumbClient:
 
     @staticmethod
     def ticker(currency='ALL'):
-        uri = "https://api.bithumb.com/public/ticker/" + currency
-        response = requests.get(uri)
-        parsed = json.dumps(response.json(), indent=2)
-        print parsed
-        return response.json()
+        url = "https://api.bithumb.com/public/ticker/" + currency
+        response = requests.get(url)
+        return response.json()['data']
+
+    @staticmethod
+    def order_book(currency='ALL'):
+        url = "https://api.bithumb.com/public/orderbook/" + currency
+        params = {
+            "group_orders": 1,  # Value : 0 또는 1 (Default : 1)
+            "count": 5  # Value : 1 ~ 50 (Default : 20), ALL : 1 ~ 5(Default : 5)
+        }
+        response = requests.get(url, data=params)
+        return response.json()['data']
 
     @staticmethod
     def recent_transactions(currency='BTC'):
@@ -151,20 +159,38 @@ class BithumbClient:
                 price_int = int(row["price"])
                 units_float = float(row["units"].replace(" ", ""))
 
-                if currency_remain_float < trading_unit[currency]:
+                if currency_remain_float < trading_unit[currency][0]:
                     print currency + "_remain: " + row[currency + "_remain"] + " break!!"
                     break
 
                 krw_sum -= price_int
                 quantity_sum += units_float
 
-                if currency_remain_float - units_float < trading_unit[currency]:
+                if currency_remain_float - units_float < trading_unit[currency][0]:
                     print "previous ", currency_remain_float - units_float, " break!!"
                     break
 
         break_even = int(round(krw_sum / quantity_sum)) if quantity_sum != 0.0 else 0
         return break_even, quantity_sum  # (break even, quantity)
 
+    def place_order(self, order_type, currency, quantity, price):
+        (min_unit, round_digit) = trading_unit[currency]
+        new_quantity = round(quantity - min_unit * 0.5, round_digit)
+
+        endpoint = "/trade/place"
+        params = {
+            "order_currency": currency,
+            "Payment_currency": "KRW",
+            "units": '{:.8f}'.format(new_quantity).rstrip('0').rstrip('.'),  # to avoid exponential notation
+            "price": price,
+            "type": order_type  # 거래유형 (bid : 구매, ask : 판매)
+        }
+        print params
+        json_response = self._post(endpoint, params)
+        print json_response
+        order_id = json_response['order_id']
+        data = json_response.get['data']
+        return order_id, data
 
 
 
