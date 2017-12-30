@@ -26,6 +26,12 @@ class AccountBalance(object):
         return float(self.__json_dict["btc_available"])
 
 
+class StatusError(Exception):
+    def __init__(self, status, message):
+        self.status = status
+        self.message = message
+
+
 class BithumbClient:
     api_url = "https://api.bithumb.com"
 
@@ -106,8 +112,16 @@ class BithumbClient:
 
         response = requests.post(url, headers=headers, data=uri_array, timeout=5)
         response.raise_for_status()
+        json_response = response.json()
 
-        return response.json()
+        # Check for errors.
+        if isinstance(json_response, dict):
+            status = json_response.get("status")
+            if status != "0000":
+                message = json_response.get("message")
+                raise StatusError(status, message)
+
+        return json_response
 
     def get_account_balance(self):
         endpoint = "/info/balance"

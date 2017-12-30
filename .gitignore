@@ -180,4 +180,4 @@ keys.py
 .idea/
 
 # temporary test
-test.py
+temp/

@@ -22,24 +22,32 @@ def hi(msg):
 @listen_to('balance', re.IGNORECASE)
 def hello(msg):
     api = BithumbClient()
-    balance = api.get_account_balance().get_dict()
-    msg.send("krw " + str(balance["total_krw"]))
-    msg.send("btc " + str(balance["total_btc"]))
-    msg.send("eth " + str(balance["total_eth"]))
-    msg.send("dash " + str(balance["total_dash"]))
-    msg.send("ltc " + str(balance["total_ltc"]))
-    msg.send("etc " + str(balance["total_etc"]))
-    msg.send("bch " + str(balance["total_bch"]))
-    msg.send("xmr " + str(balance["total_xmr"]))
-    msg.send("zec " + str(balance["total_zec"]))
-    msg.send("qtum " + str(balance["total_qtum"]))
-    msg.send("btg " + str(balance["total_btg"]))
+    try:
+        balance = api.get_account_balance().get_dict()
+    except StatusError as e:
+        msg.send("status: " + e.status + ", message: " + e.message)
+    else:
+        msg.send("krw " + str(balance["total_krw"]))
+        msg.send("btc " + str(balance["total_btc"]))
+        msg.send("eth " + str(balance["total_eth"]))
+        msg.send("dash " + str(balance["total_dash"]))
+        msg.send("ltc " + str(balance["total_ltc"]))
+        msg.send("etc " + str(balance["total_etc"]))
+        msg.send("bch " + str(balance["total_bch"]))
+        msg.send("xmr " + str(balance["total_xmr"]))
+        msg.send("zec " + str(balance["total_zec"]))
+        msg.send("qtum " + str(balance["total_qtum"]))
+        msg.send("btg " + str(balance["total_btg"]))
 
 
 @listen_to('avg (.*)', re.IGNORECASE)
 def avg(msg, currency):
     api = BithumbClient()
-    (break_even, quantity) = api.get_break_even(currency)
-    msg.send("[" + currency + "]")
-    msg.send("avg: " + str(break_even))
-    msg.send("quantity: " + str(quantity))
+    try:
+        (break_even, quantity) = api.get_break_even(currency)
+    except StatusError as e:
+        msg.send("status: " + e.status + ", message: " + e.message)
+    else:
+        msg.send("[" + currency + "]")
+        msg.send("avg: " + str(break_even))
+        msg.send("quantity: " + str(quantity))
