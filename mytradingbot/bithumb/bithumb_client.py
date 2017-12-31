@@ -204,8 +204,22 @@ class BithumbClient:
         json_response = self._post(endpoint, params)
         print json_response
         order_id = json_response['order_id']
-        data = json_response.get['data']
+        data = json_response['data']
         return order_id, data
+
+    def buy_now_with_krw(self, currency, price_limit):
+        price = int(self.order_book()[currency.upper()]['asks'][4]['price'])
+        quantity = float(price_limit) / price
+        print "buy_now_with_krw. price: ", price, ", quantity", quantity
+        return self.place_order("bid", currency, quantity, price)
+
+    def sell_now(self, currency, quantity):
+        price = int(self.order_book()[currency.upper()]['bids'][4]['price'])
+        print "sell_now. price: ", price, ", quantity", quantity
+        return self.place_order("ask", currency, quantity, price)
+
+
+
 
 
 
