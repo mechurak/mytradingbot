@@ -10,20 +10,7 @@ from mytradingbot.keys import bithumb_api_key, bithumb_api_secret
 import requests
 import json
 from const import trading_unit
-
-
-class AccountBalance(object):
-    def __init__(self, json_dict):
-        self.__json_dict = json_dict
-
-    def get_dict(self):
-        return self.__json_dict
-
-    def get_krw_available(self):
-        return int(self.__json_dict["available_krw"])
-
-    def get_btc_available(self):
-        return float(self.__json_dict["btc_available"])
+from balance import AccountBalance
 
 
 class StatusError(Exception):
@@ -34,10 +21,12 @@ class StatusError(Exception):
 
 class BithumbClient:
     api_url = "https://api.bithumb.com"
+    account_balance = AccountBalance()
 
     def __init__(self):
         self.api_key = bithumb_api_key
         self.api_secret = bithumb_api_secret
+        self.balance = self.account_balance.balance
 
     @staticmethod
     def ticker(currency='ALL'):
@@ -137,7 +126,33 @@ class BithumbClient:
             "currency": "ALL"
         }
         json_response = self._post(endpoint, params)
-        return AccountBalance(json_response["data"])
+        data = json_response["data"]
+        print json.dumps(data)
+
+        cur_price_dict = self.ticker()
+        total_krw_int = int(data["total_krw"])
+        self.balance['krw']['quantity'] = total_krw_int
+        for currency in trading_unit.keys():
+            key = "total_" + currency
+            quantity_float = float(data[key])
+            if quantity_float > trading_unit[currency][0]:
+                print key, quantity_float
+                break_even, quantity_sum = self.get_break_even(currency)
+                self.balance[currency]['break_even'] = break_even
+                self.balance[currency]['quantity'] = quantity_sum
+                cur_price_int = int(cur_price_dict[currency.upper()]['closing_price'])
+                self.balance[currency]['current_price'] = cur_price_int
+                percent = round(float(cur_price_int - break_even) / break_even * 100, 2)
+                self.balance[currency]['change_percent'] = percent
+                self.balance[currency]['initial_total'] = int(break_even * quantity_sum)
+                self.balance[currency]['current_total'] = int(cur_price_int * quantity_sum)
+                self.balance[currency]['revenue_total'] = self.balance[currency]['current_total'] - self.balance[currency]['initial_total']
+            else:
+                self.balance[currency] = {
+                    "break_even": 0,
+                    "quantity": quantity_float
+                }
+        return self.account_balance
 
     def get_break_even(self, currency):
         endpoint = "/info/user_transactions"

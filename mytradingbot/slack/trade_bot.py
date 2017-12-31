@@ -1,5 +1,6 @@
 # coding=utf-8
 # reference : https://github.com/lins05/slackbot
+import json
 
 from slackbot.bot import respond_to
 from slackbot.bot import listen_to
@@ -23,21 +24,12 @@ def hi(msg):
 def hello(msg):
     api = BithumbClient()
     try:
-        balance = api.get_account_balance().get_dict()
+        balance = api.get_account_balance()
     except StatusError as e:
         msg.send("status: " + e.status + ", message: " + e.message)
     else:
-        msg.send("krw " + str(balance["total_krw"]))
-        msg.send("btc " + str(balance["total_btc"]))
-        msg.send("eth " + str(balance["total_eth"]))
-        msg.send("dash " + str(balance["total_dash"]))
-        msg.send("ltc " + str(balance["total_ltc"]))
-        msg.send("etc " + str(balance["total_etc"]))
-        msg.send("bch " + str(balance["total_bch"]))
-        msg.send("xmr " + str(balance["total_xmr"]))
-        msg.send("zec " + str(balance["total_zec"]))
-        msg.send("qtum " + str(balance["total_qtum"]))
-        msg.send("btg " + str(balance["total_btg"]))
+        for cur in balance.get_report_list():
+            msg.send(cur[0] + "\n" + json.dumps(cur[1], indent=2))
 
 
 @listen_to('avg (.*)', re.IGNORECASE)
