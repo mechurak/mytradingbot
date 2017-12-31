@@ -26,7 +26,7 @@ def cmd(msg):
 
 
 @listen_to('balance', re.IGNORECASE)
-def hello(msg):
+def balance(msg):
     api = BithumbClient()
     try:
         balance = api.get_account_balance()
