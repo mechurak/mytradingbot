@@ -14,6 +14,12 @@ def hello(msg):
     msg.send("World!!")
 
 
+@listen_to('hi', re.IGNORECASE)
+def hi(msg):
+    print "listen_to: hi"
+    msg.send("hi there")
+
+
 @listen_to('cmd', re.IGNORECASE)
 def cmd(msg):
     ret_msg = [
@@ -29,11 +35,11 @@ def cmd(msg):
 def balance(msg):
     api = BithumbClient()
     try:
-        balance = api.get_account_balance()
+        account_balance = api.get_account_balance()
     except StatusError as e:
         msg.send("status: " + str(e.status) + ", message: " + e.message)
     else:
-        for cur in balance.get_report_list():
+        for cur in account_balance.get_report_list():
             msg.send(cur[0] + "\n" + json.dumps(cur[1], indent=2))
 
 

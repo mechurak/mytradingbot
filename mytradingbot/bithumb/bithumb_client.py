@@ -52,8 +52,6 @@ class BithumbClient:
             "count": 100  # Value : 1 ~ 100 (Default : 20)
         }
         response = requests.get(url, data=params)
-        parsed = json.dumps(response.json(), indent=2)
-        print parsed
         return response.json()
 
     @staticmethod
@@ -127,7 +125,6 @@ class BithumbClient:
         }
         json_response = self._post(endpoint, params)
         data = json_response["data"]
-        print json.dumps(data)
 
         cur_price_dict = self.ticker()
         total_krw_int = int(data["total_krw"])
