@@ -4,9 +4,8 @@
 #
 # rdate -s time.nist.gov
 #
-import json
 
-from bithumb.bithumb_client import BithumbClient
+from bithumb_client import BithumbClient
 
 api = BithumbClient()
 ret1 = api.get_break_even("bch")

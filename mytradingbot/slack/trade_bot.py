@@ -3,8 +3,8 @@
 
 from slackbot.bot import respond_to
 from slackbot.bot import listen_to
-from slackbot.dispatcher import Message
-from bithumb.bithumb_client import *
+from mytradingbot.bithumb.bithumb_client import BithumbClient
+from mytradingbot.bithumb.bithumb_client import StatusError
 
 import re  # 정규식
 

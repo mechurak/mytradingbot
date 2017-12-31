@@ -6,7 +6,7 @@ import math
 import time
 import urllib
 
-from keys import bithumb_api_key, bithumb_api_secret
+from mytradingbot.keys import bithumb_api_key, bithumb_api_secret
 import requests
 import json
 from const import trading_unit
