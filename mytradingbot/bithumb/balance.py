@@ -62,7 +62,7 @@ class AccountBalance:
         initial_total_sum = 0
         current_total_sum = 0
         for currency in self.balance.keys():
-            if self.balance[currency]['break_even'] != 0:
+            if self.balance[currency]['break_even'] > 1:  # krw has 1
                 ret.append((currency, self.balance[currency]))
                 initial_total_sum += self.balance[currency]['initial_total']
                 current_total_sum += self.balance[currency]['current_total']

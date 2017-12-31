@@ -26,7 +26,7 @@ def hello(msg):
     try:
         balance = api.get_account_balance()
     except StatusError as e:
-        msg.send("status: " + e.status + ", message: " + e.message)
+        msg.send("status: " + str(e.status) + ", message: " + e.message)
     else:
         for cur in balance.get_report_list():
             msg.send(cur[0] + "\n" + json.dumps(cur[1], indent=2))
@@ -38,7 +38,7 @@ def avg(msg, currency):
     try:
         (break_even, quantity) = api.get_break_even(currency)
     except StatusError as e:
-        msg.send("status: " + e.status + ", message: " + e.message)
+        msg.send("status: " + str(e.status) + ", message: " + e.message)
     else:
         msg.send("[" + currency + "]")
         msg.send("avg: " + str(break_even))
