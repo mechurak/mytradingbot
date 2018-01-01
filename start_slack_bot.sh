@@ -3,4 +3,5 @@ PWD=`pwd`
 
 export PYTHONPATH=$PYTHONPATH:$PWD/mytradingbot:$PWD/mytradingbot/slack
 
-python ./mytradingbot/slack/run.py &
+# nohup: Ignore logout(?)
+nohup python ./mytradingbot/slack/run.py &

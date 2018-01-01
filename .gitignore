@@ -181,3 +181,6 @@ keys.py
 
 # temporary test
 temp/
+
+# nohup log
+nohup.out
