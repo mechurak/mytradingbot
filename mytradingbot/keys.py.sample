@@ -1,4 +1,7 @@
 bithumb_api_key = "qwer1234qwer1234qwer1234qwer1234"
 bithumb_api_secret = "qwer1234qwer1234qwer1234qwer1234"
 
+# Bots
 slack_api_token = "qwer-123412341234-qwer1234wqer1234qwer1234"
+# Incoming WebHooks
+slack_hook_url = "https://hooks.slack.com/services/qwer1234qwer1234qwer1234qwer1234qwer1234qwer"
