@@ -184,3 +184,6 @@ temp/
 
 # nohup log
 nohup.out
+
+# collected transaction data
+transactions/

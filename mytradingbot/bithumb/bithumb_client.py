@@ -8,7 +8,6 @@ import urllib
 
 from mytradingbot.keys import bithumb_api_key, bithumb_api_secret
 import requests
-import json
 from const import trading_unit
 from balance import AccountBalance
 
@@ -41,7 +40,7 @@ class BithumbClient:
             "group_orders": 1,  # Value : 0 또는 1 (Default : 1)
             "count": 5  # Value : 1 ~ 50 (Default : 20), ALL : 1 ~ 5(Default : 5)
         }
-        response = requests.get(url, data=params)
+        response = requests.get(url, params=params)
         return response.json()['data']
 
     @staticmethod
@@ -51,7 +50,7 @@ class BithumbClient:
             "offset": 0,  # Value : 0 ~ (Default : 0)
             "count": 100  # Value : 1 ~ 100 (Default : 20)
         }
-        response = requests.get(url, data=params)
+        response = requests.get(url, params=params)
         return response.json()
 
     @staticmethod

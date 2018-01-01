@@ -3,24 +3,29 @@
 import json
 
 from slackbot.bot import listen_to
+
+from mytradingbot.bithumb.bithumb_bot import BithumbBot
 from mytradingbot.bithumb.bithumb_client import BithumbClient
 from mytradingbot.bithumb.bithumb_client import StatusError
 
 import re  # 정규식
 
+# TODO: Consider singleton
+bithumb_bot = BithumbBot()
 
-@listen_to('Hello', re.IGNORECASE)
+
+@listen_to('^Hello$', re.IGNORECASE)
 def hello(msg):
     msg.send("World!!")
 
 
-@listen_to('hi', re.IGNORECASE)
+@listen_to('^hi$', re.IGNORECASE)
 def hi(msg):
     print "listen_to: hi"
     msg.send("hi there")
 
 
-@listen_to('cmd', re.IGNORECASE)
+@listen_to('^cmd$', re.IGNORECASE)
 def cmd(msg):
     ret_msg = [
         "balance",
@@ -31,7 +36,7 @@ def cmd(msg):
     msg.send("command list\n" + json.dumps(ret_msg, indent=2))
 
 
-@listen_to('balance', re.IGNORECASE)
+@listen_to('^balance$', re.IGNORECASE)
 def balance(msg):
     api = BithumbClient()
     try:
@@ -43,7 +48,7 @@ def balance(msg):
             msg.send(cur[0] + "\n" + json.dumps(cur[1], indent=2))
 
 
-@listen_to('avg (.*)', re.IGNORECASE)
+@listen_to('^avg (.*)', re.IGNORECASE)
 def avg(msg, currency):
     api = BithumbClient()
     try:
@@ -56,7 +61,7 @@ def avg(msg, currency):
         msg.send("quantity: " + str(quantity))
 
 
-@listen_to('buy now (.*) (.*)', re.IGNORECASE)
+@listen_to('^buy now (.*) (.*)', re.IGNORECASE)
 def buy_now(msg, currency, price_limit):
     api = BithumbClient()
     try:
@@ -68,7 +73,7 @@ def buy_now(msg, currency, price_limit):
         msg.send(data)
 
 
-@listen_to('sell now (.*) (.*)', re.IGNORECASE)
+@listen_to('^sell now (.*) (.*)', re.IGNORECASE)
 def sell_now(msg, currency, quantity):
     api = BithumbClient()
     try:
@@ -78,3 +83,15 @@ def sell_now(msg, currency, quantity):
     else:
         msg.send(order_id)
         msg.send(data)
+
+
+@listen_to('^start$', re.IGNORECASE)
+def start(msg):
+    msg.send("received start command")
+    bithumb_bot.run()
+
+
+@listen_to('^stop$', re.IGNORECASE)
+def stop(msg):
+    msg.send("received stop command")
+    bithumb_bot.stop_trading()
