@@ -38,7 +38,7 @@ class TransactionCollector(Thread):
         self.name = the_name
         columns = ["total", "price", "transaction_date", "type", "units_traded"]
         self.df = pd.DataFrame(columns=columns)
-        self.interval = 5
+        self.interval = 2
         self.stop_signal = False
 
     def stop_running(self):
@@ -67,14 +67,14 @@ class TransactionCollector(Thread):
             if row_count > 10000:
                 if not os.path.isdir("transactions"):
                     os.mkdir("transactions")
-                file_name = self.name + "_" + strftime("%Y%m%d_%H%M%S") + ".csv"
+                file_name = "transactions/" + self.name + "_" + strftime("%Y%m%d_%H%M%S") + ".csv"
                 print self.name, "to_csv: " + file_name
                 self.df.to_csv(file_name)
                 self.df = self.df[self.df.index < 1000]
 
             # TODO: Check heavy transaction situation
             if duplicated_count < 70:
-                self.interval = max(self.interval - 1, 2)
+                self.interval = max(self.interval - 1, 1)
             else:
                 self.interval = min(self.interval + 1, 5)
 
