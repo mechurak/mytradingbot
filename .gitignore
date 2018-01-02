@@ -187,3 +187,6 @@ nohup.out
 
 # collected transaction data
 transactions/
+
+# log data
+logs/

@@ -5,6 +5,9 @@ import time
 import os
 from time import strftime
 from const import trading_unit
+import logging
+
+logger = logging.getLogger("MyLogger")
 
 
 class ChartDataManager:
@@ -12,14 +15,14 @@ class ChartDataManager:
         self.data = {}
 
     def start_collecting(self):
-        print "start_collecting"
+        logger.info("start_collecting...")
         for currency in trading_unit.keys():
             self.data[currency] = TransactionCollector(currency)
             self.data[currency].start()
             time.sleep(0.4)
 
     def stop_collecting(self):
-        print "stop_collecting"
+        logger.info("stop_collecting...")
         for collector in self.data.values():
             collector.stop_running()
 
@@ -61,22 +64,23 @@ class TransactionCollector(Thread):
             self.df = pd.concat([btc_temp_df, self.df]).drop_duplicates().reset_index(drop=True)
             row_count = self.df.index.shape[0]
             duplicated_count = (prev_row_count + new_row_count) - row_count
-            print self.name, "prev_row_count", prev_row_count, ", row_count", row_count, ", duplicated_count", duplicated_count
 
             # TODO: Find proper thresholds
             if row_count > 10000:
                 if not os.path.isdir("transactions"):
                     os.mkdir("transactions")
                 file_name = "transactions/" + self.name + "_" + strftime("%Y%m%d_%H%M%S") + ".csv"
-                print self.name, "to_csv: " + file_name
+                logger.info("to csv: %s", file_name)
                 self.df.to_csv(file_name)
                 self.df = self.df[self.df.index < 1000]
 
             # TODO: Check heavy transaction situation
             if duplicated_count < 70:
-                self.interval = max(self.interval - 1, 1)
+                logger.warning("%s prev_row_count: %d, row_count: %d, duplicated_count: %d", self.name, prev_row_count,
+                               row_count, duplicated_count)
+                self.interval = 1
             else:
-                self.interval = min(self.interval + 1, 5)
+                self.interval = min(self.interval + 0.5, 5)
 
             time.sleep(self.interval)
         print self.name, "finished"

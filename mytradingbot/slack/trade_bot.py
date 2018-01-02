@@ -9,9 +9,12 @@ from mytradingbot.bithumb.bithumb_client import BithumbClient
 from mytradingbot.bithumb.bithumb_client import StatusError
 
 import re  # 정규식
+import logging
 
 # TODO: Consider singleton
 bithumb_bot = BithumbBot()
+
+logger = logging.getLogger("MyLogger")
 
 
 @listen_to('^Hello$', re.IGNORECASE)
@@ -38,6 +41,7 @@ def cmd(msg):
 
 @listen_to('^balance$', re.IGNORECASE)
 def balance(msg):
+    logger.info("balance")
     api = BithumbClient()
     try:
         account_balance = api.get_account_balance()
@@ -50,6 +54,7 @@ def balance(msg):
 
 @listen_to('^avg (.*)', re.IGNORECASE)
 def avg(msg, currency):
+    logger.info("avg %s", currency)
     api = BithumbClient()
     try:
         (break_even, quantity) = api.get_break_even(currency)
@@ -63,6 +68,7 @@ def avg(msg, currency):
 
 @listen_to('^buy now (.*) (.*)', re.IGNORECASE)
 def buy_now(msg, currency, price_limit):
+    logger.info("buy now %s %s", currency, price_limit)
     api = BithumbClient()
     try:
         order_id, data = api.buy_now_with_krw(currency, int(price_limit))
@@ -70,11 +76,12 @@ def buy_now(msg, currency, price_limit):
         msg.send("status: " + str(e.status) + ", message: " + e.message)
     else:
         msg.send(order_id)
-        msg.send(data)
+        msg.send(json.dumps(data, indent=2))
 
 
 @listen_to('^sell now (.*) (.*)', re.IGNORECASE)
 def sell_now(msg, currency, quantity):
+    logger.info("received sell now %s %s", currency, quantity)
     api = BithumbClient()
     try:
         order_id, data = api.sell_now(currency, float(quantity))
@@ -82,16 +89,18 @@ def sell_now(msg, currency, quantity):
         msg.send("status: " + str(e.status) + ", message: " + e.message)
     else:
         msg.send(order_id)
-        msg.send(data)
+        msg.send(json.dumps(data, indent=2))
 
 
 @listen_to('^start$', re.IGNORECASE)
 def start(msg):
+    logger.info("start")
     msg.send("received start command")
     bithumb_bot.run()
 
 
 @listen_to('^stop$', re.IGNORECASE)
 def stop(msg):
+    logger.info("stop")
     msg.send("received stop command")
     bithumb_bot.stop_trading()

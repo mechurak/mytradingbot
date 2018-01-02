@@ -2,10 +2,11 @@
 
 from slackbot.bot import Bot
 import logging
-logging.basicConfig()
+logger = logging.getLogger("MyLogger")
 
 
 def main():
+    logger.info("start slack_bot")
     bot = Bot()
     bot.run()
 
