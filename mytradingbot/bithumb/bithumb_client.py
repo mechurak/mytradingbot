@@ -10,6 +10,9 @@ from mytradingbot.keys import bithumb_api_key, bithumb_api_secret
 import requests
 from const import trading_unit
 from balance import AccountBalance
+import json
+import logging
+logger = logging.getLogger("MyLogger")
 
 
 class StatusError(Exception):
@@ -132,7 +135,6 @@ class BithumbClient:
             key = "total_" + currency
             quantity_float = float(data[key])
             if quantity_float > trading_unit[currency][0]:
-                print key, quantity_float
                 break_even, quantity_sum = self.get_break_even(currency)
                 self.balance[currency]['break_even'] = break_even
                 self.balance[currency]['quantity'] = quantity_sum
@@ -171,14 +173,12 @@ class BithumbClient:
                 units_float = float(row["units"].replace(" ", ""))
 
                 if currency_remain_float < trading_unit[currency][0]:
-                    print currency + "_remain: " + row[currency + "_remain"] + " break!!"
                     break
 
                 krw_sum -= price_int
                 quantity_sum += units_float
 
                 if currency_remain_float - units_float < trading_unit[currency][0]:
-                    print "previous ", currency_remain_float - units_float, " break!!"
                     break
 
         break_even = int(round(krw_sum / quantity_sum)) if quantity_sum != 0.0 else 0
@@ -196,9 +196,9 @@ class BithumbClient:
             "price": price,
             "type": order_type  # 거래유형 (bid : 구매, ask : 판매)
         }
-        print params
+        logger.info("place_order(). %s", json.dumps(params))
         json_response = self._post(endpoint, params)
-        print json_response
+        logger.info("place_order(). %s", json.dumps(json_response))
         order_id = json_response['order_id']
         data = json_response['data']
         return order_id, data
@@ -206,12 +206,12 @@ class BithumbClient:
     def buy_now_with_krw(self, currency, price_limit):
         price = int(self.order_book()[currency.upper()]['asks'][4]['price'])
         quantity = float(price_limit) / price
-        print "buy_now_with_krw. price: ", price, ", quantity", quantity
+        logger.info("buy_now_with_krw(). price: %d, quantity: %f", price, quantity)
         return self.place_order("bid", currency, quantity, price)
 
     def sell_now(self, currency, quantity):
         price = int(self.order_book()[currency.upper()]['bids'][4]['price'])
-        print "sell_now. price: ", price, ", quantity", quantity
+        logger.info("sell_now(). price: %d, quantity: %f", price, quantity)
         return self.place_order("ask", currency, quantity, price)
 
 
